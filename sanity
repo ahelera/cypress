@@ -1,0 +1,143 @@
+/// <reference types="cypress" />
+
+it('Sanity Testing', () => {
+    //set viewport of browser
+    cy.viewport('macbook-15');
+    //visit Cambridge Core, type mathematics, then click on the search button
+    cy.visit('https://content-admin-si.aop.cambridge.org/');
+    //type credentials
+    cy.get('[placeholder="Username"]').type('autobot01@cambridge.org');
+    cy.get('[placeholder="Password"]').type('Books1234');
+    //click login button
+    cy.get('.login-button > .button').click();
+    //click Content Admin tab
+    cy.get('[href="#panelcontent-admin"]').click();
+    //click Journals
+    cy.xpath('//ul//a[@title="Browse, QA, Manage Journals content"]').click();
+    //click S
+    cy.xpath('//ul[@class="pagination"]//a[text()="S"]').click();
+    //click SUS
+    cy.xpath('//a[contains(.,"SUS")]', { timeout: 50000 }).click()
+    //click Volume 4
+    cy.xpath('//ul[@id="volumeList"]//b[contains(text(),"4")]/parent::div').click();
+    //assert 'Fetching articles...'
+    cy.xpath('//div[@id="loading-message"]', { timeout: 15000 }).should('not.be.visible');
+    //click Article
+    cy.xpath('//span[@class="article-title-link "]//a[contains(.,"The economic value of tropical forests in meeting global climate stabilization goals")]').click();
+    //check article status, PII, DOI, Workflow, Type
+    cy.xpath('//div[@class="small-2 columns"][contains(.,"S2059479820000344")]').should('be.visible')
+    cy.xpath('(//a[@target="_blank"][contains(.,"10.1017/sus.2020.34")])[1]').should('be.visible')
+    cy.xpath('//div[@class="small-1 columns"][contains(.,"Content-Approved")]').should('be.visible')
+    cy.xpath('//div[@class="small-1 columns END"][contains(.,"research-article")]').should('be.visible')
+    //click QA HTML
+    cy.xpath('//a[contains(.,"QA HTML")]')
+        .invoke('removeAttr', 'target')
+        .click()
+    cy.xpath('(//div[@class="article-title"][contains(.,"The economic value of tropical forests in meeting global climate stabilization goals")])[2]').should('be.visible')
+    cy.go('back');
+    cy.xpath('//a[contains(.,"Core Reader")]').visible
+    //click Core Reader
+    cy.xpath('//a[contains(.,"Core Reader")]')
+        .invoke('removeAttr', 'target')
+        .click()
+    cy.xpath('//div[@class="title"][contains(.,"The economic value of tropical forests in meeting global climate stabilization goals")]').should('be.visible')
+    cy.go('back');
+    //click View Core JSON
+    cy.xpath('//a[contains(.,"View Core JSON")]').visible
+    cy.xpath('//a[contains(.,"View Core JSON")]')
+        .invoke('removeAttr', 'target')
+        .click()
+    cy.xpath('(//div[contains(text(),"The economic value of tropical forests in meeting global climate stabilization goals")])[1]').should('be.visible')
+    Cypress.on('uncaught:exception', (err, runnable) => {
+    if (err.message.includes('No container element provided')) {
+        return false
+    }
+    })
+    cy.go('back');
+    //click Download Core JSON
+    cy.xpath('//a[contains(.,"Download Core JSON")]').visible
+    cy.xpath('//a[contains(.,"Download Core JSON")]')
+        .invoke('removeAttr', 'target')
+        .click()
+    Cypress.on('uncaught:exception', (err, runnable) => {
+    if (err.message.includes('No container element provided')) {
+        return false
+    }
+    })
+    cy.go('back');
+    //click View Sidebar JSON
+    cy.xpath('//a[contains(.,"View Sidebar JSON")]').visible
+    cy.xpath('//a[contains(.,"View Sidebar JSON")]')
+        .invoke('removeAttr', 'target')
+        .click()
+    Cypress.on('uncaught:exception', (err, runnable) => {
+    if (err.message.includes('Unexpected token')) {
+        return false
+    }
+    })
+    Cypress.on('uncaught:exception', (err, runnable) => {
+    if (err.message.includes('jsonStatus is not defined')) {
+        return false
+    }
+    })
+    cy.xpath('//div[contains(text(),"Introduction")]').should('be.visible')
+    cy.go('back');
+    //click View Figures JSON
+    cy.xpath('//a[contains(.,"View Figures JSON")]').visible
+    cy.xpath('//a[contains(.,"View Figures JSON")]')
+        .invoke('removeAttr', 'target')
+        .click()
+    cy.xpath('//div[contains(text(),"Total emissions from tropical forests under business-as-usual (BAU) and maximum mitigation scenarios over 2020–2100")]').should('be.visible')
+    cy.go('back');
+    //click PDF
+    cy.xpath('(//a[@target="_tab"][contains(.,"PDF  (516Kb)")])[1]').visible
+    cy.xpath('(//a[@target="_tab"][contains(.,"PDF  (516Kb)")])[1]')
+        .invoke('removeAttr', 'target')
+        .click()
+    cy.go('back');
+    //click Stamped PDF
+    cy.xpath('//a[contains(.,"Stamped PDF  (516Kb)")]').visible
+    cy.xpath('//a[contains(.,"Stamped PDF  (516Kb)")]')
+        .invoke('removeAttr', 'target')
+        .click()
+    cy.go('back');
+    
+    //click Citation View
+    cy.xpath('//a[contains(.,"Citation View")]').visible
+    cy.xpath('//a[contains(.,"Citation View")]')
+        .invoke('removeAttr', 'target')
+        .click()
+    Cypress.on('uncaught:exception', (err, runnable) => {
+        if (err.message.includes('e.indexOf is not a function')) {
+              return false
+        }
+    })
+    cy.xpath('//a[contains(.,"References HTML")]').should('be.visible')
+        .click()
+    cy.get(':nth-child(1) > #contentContainer').should('be.visible')
+    cy.xpath('//a[contains(.,"References Table")]').should('be.visible')
+        .click()
+    cy.get('#referenceTablePanel > .container').should('be.visible')
+    cy.xpath('(//a[contains(.,"Citations")])[2]').should('be.visible')
+        .click()
+    cy.get('#citations_wrapper').should('be.visible')
+    cy.xpath('//a[contains(.,"References Raw XML")]').should('be.visible')
+        .click()
+    cy.get('#referencesXML').should('be.visible')
+    cy.xpath('//a[contains(.,"References Core Json")]').should('be.visible')
+        .click()
+    cy.get('#referencesJson').should('be.visible')
+    cy.xpath('//a[contains(.,"PDF")]').should('be.visible')
+        .click()
+    cy.go('back');
+
+    //download XML
+    cy.downloadFile('https://content-admin-si.aop.cambridge.org/content-admin/content/books/consignmentxml/S2059479820000344.xml?bundleId=urn:cambridge.org:id:content-bundle:S2059479820000344:version:1&pub-status=live',
+    'downloads',
+    'S2059479820000344.xml')
+    // cy.readFile('downloads/S2059479820000344.xml').then((xml) => {
+    //     expect(xml).to.contain('10.1017/sus.2020.34', 'xml contains <article-id pub-id-type="doi">')
+    // })
+    cy.readFile('downloads/S2059479820000344.xml').should('exist')
+    
+})
